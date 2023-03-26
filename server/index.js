@@ -8,6 +8,8 @@ import movieRoutes from "./routes/review.js"
 import morgan from "morgan";
 import sessions from 'client-sessions';
 import { register } from "./controllers/auth.js";
+import cookieParser from "cookie-parser";
+import { uuid } from "uuidv4";
 //import MovieList from "./data/index.js"
 //import Movielist from "./models/MovieList.js";
 //import Movie from "./models/User.js";
@@ -38,8 +40,57 @@ app.use(sessions({
   activeDuration: 60 * 60 * 1000,
 }));
 
+app.use(cookieParser());
+
+const session = {};
+
+function generateUserId() {
+  return uuid();
+}
+
+function verifySession(sessionId) {
+  const userId = session[sessionId];
+
+  if (userId) {
+    // The session ID is valid, return the user ID
+    return userId;
+  } else {
+    // The session ID is invalid, return null
+    return null;
+  }
+}
+
 /* ROUTES WITH FILES */
 app.post("/auth/register", register);
+
+app.post('/login', (req, res) => {
+  // Verify user credentials and generate session ID
+  const { username, password } = req.body;
+  const userId = generateUserId();
+  const sessionId = generateUserId();
+  sessions[sessionId] = userId;
+
+  // Set session ID cookie
+  res.cookie('sessionId', sessionId, { httpOnly: true });
+
+  // Return user ID to client
+  res.json({ userId });
+});
+
+app.get('/api/data', (req, res) => {
+  // Verify session ID cookie and return data if valid
+  const sessionId = req.cookies.sessionId;
+  const userId = verifySession(sessionId);
+
+  if (userId) {
+    // The session is valid, return the data
+    res.json({ data: 'Secret data' });
+  } else {
+    // The session is invalid, return 401 Unauthorized
+    res.sendStatus(401);
+  }
+});
+
 app.get('/movie', (req, res) => {
     Movie.find()
       .sort({ date: -1 })
