@@ -62,6 +62,7 @@ function verifySession(sessionId) {
 
 /* ROUTES WITH FILES */
 app.post("/auth/register", register);
+app.get("/feed", movieRoutes);
 
 app.post('/login', (req, res) => {
   // Verify user credentials and generate session ID
