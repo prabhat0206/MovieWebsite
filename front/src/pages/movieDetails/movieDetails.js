@@ -18,7 +18,13 @@ const Movie = () => {
     }, []);
 
     useEffect(() => {
-        const sessionCookie = Cookies.get('session');
+        // console.log("Cookie -> ", Cookies);
+        // const sessionCookie = Cookies.get("session");
+        // console.log("sessionCookie -> ", sessionCookie);
+        // check if session cookie exists
+        
+        const sessionCookie = Cookies.get("token");
+
         if(sessionCookie){
             setIsLoggedIn(true);
         }

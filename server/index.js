@@ -6,7 +6,7 @@ import bodyParser from "body-parser";
 import authRoutes from "./routes/auth.js";
 import movieRoutes from "./routes/review.js"
 import morgan from "morgan";
-import sessions from 'client-sessions';
+import sessions from 'express-session';
 import { register } from "./controllers/auth.js";
 import cookieParser from "cookie-parser";
 import { uuid } from "uuidv4";
@@ -34,10 +34,10 @@ app.all('*', (req, res, next) => {
 });
 
 app.use(sessions({
-  cookieName: 'sessioncookies',
   secret: 'lets-assume-this-is-a-good-secret',
-  duration: 24 * 60 * 60 * 1000,
-  activeDuration: 60 * 60 * 1000,
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: false }
 }));
 
 app.use(cookieParser());
@@ -121,12 +121,12 @@ app.use("/api/movies", movieRoutes)
 /* MONGOOSE SETUP */
 const PORT = process.env.PORT || 6001;
 mongoose
-    .connect(process.env.MONGO_URL, {
+    .connect("mongodb+srv://vaaniarora:vaani123@view.ghp9m1b.mongodb.net/?retryWrites=true&w=majority", {
         useNewUrlParser: true,
         useUnifiedTopology: true,
     })
     .then(() => {
-        app.listen(PORT, () => console.log(`Server Port: ${PORT}`));
+        app.listen(3001, () => console.log(`Server Port: ${PORT}`));
 
         /* ADD DATA ONE TIME */
         //Movies.insertMany(user);
